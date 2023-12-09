@@ -7,31 +7,35 @@ import {
 import authentication from "../firebase";
 
 //REDUX
-import { AppDispatch, dispatch } from "@/app/redux/store";
+import { AppDispatch } from "@/app/redux/store";
 import {
   setCurrentUser,
   setUserLogOutState,
 } from "@/app/redux/features/userSlice";
 import { useDispatch } from "react-redux";
 
-function logOut() {
+function Logout() {
+  const dispatch = useDispatch<AppDispatch>();
+
   signOut(authentication).then((res) => {
     // REDUX STATE
-    console.log(res);
+    dispatch(setUserLogOutState());
   });
 }
 
-function CreateUserWithPassword(email: string, password: string) {
-  const dispatch = useDispatch<AppDispatch>();
-
+function CreateUserWithPassword(nigga: Function,email: string, password: string) {
   createUserWithEmailAndPassword(authentication, email, password).then(
     (userCredential) => {
+      console.log('call2')
       const user = userCredential.user;
-      const { uid } = user!;
-      const email = user.email!;
-
-      console.log(user);
-      dispatch(setCurrentUser({ emailAddress: email, uid }));
+      const { uid, email } = user!;
+      nigga(
+        setCurrentUser({
+          email,
+          uid,
+        })
+      );
+      console.log('after ni')
     }
   );
 }
@@ -60,4 +64,5 @@ function createUserWithGoogle() {
     });
 }
 
-export { CreateUserWithPassword, createUserWithGoogle, logOut };
+const functions = { CreateUserWithPassword, Logout, createUserWithGoogle };
+export default functions

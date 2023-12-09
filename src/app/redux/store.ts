@@ -1,10 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from './features/userSlice';
+import countReducer from "./features/countSlice";
 import { TypedUseSelectorHook, useSelector } from "react-redux";
+import { useDispatch } from 'react-redux';
+
 
 const store = configureStore({
     reducer: {
-      userReducer
+      userReducer,
+      countReducer
     }
   })
 
@@ -13,6 +17,7 @@ export type AppDispatch = typeof store.dispatch;
 export default store
 
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+export const dispatch = useDispatch<AppDispatch>;
 
 
 // reducer takes action and previous state, and makes change to state, then returns state

@@ -1,17 +1,13 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 type UserType = {
-  user: {
-    email: string;
+    email: string | null;
     uid: string;
-  };
 };
 
-const initialState = {
-  user: {
-    email: "test",
-    uid: "test",
-  },
+let initialState = {
+    email: "none",
+    uid: "none",
 } as UserType;
 
 const userSlice = createSlice({
@@ -21,18 +17,14 @@ const userSlice = createSlice({
     setCurrentUser: (state, action: PayloadAction<UserType>) => {
       /*  state.userName = action.payload.userName;
         state.userEmail = action.payload.userEmail; */
-      const { email, uid } = action.payload.user;
-      state.user = {
-        email,
-        uid,
-      };
+      const { email, uid } = action.payload;
+      state = action.payload;
+      initialState = action.payload;
+
+      console.log('DONE!')
+      console.log(state)
     },
-    setUserLogOutState: (state) => {
-      state.user = {
-        email: "test",
-        uid: "test",
-      };
-    },
+    setUserLogOutState: () => initialState
   },
 });
 
