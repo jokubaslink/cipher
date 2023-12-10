@@ -1,56 +1,95 @@
 import {
+  Auth,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
 } from "firebase/auth";
 import authentication from "../firebase";
 
 //REDUX
-import { AppDispatch } from "@/app/redux/store";
 import {
   setCurrentUser,
   setUserLogOutState,
 } from "@/app/redux/features/userSlice";
-import { useDispatch } from "react-redux";
 
-function Logout() {
-  const dispatch = useDispatch<AppDispatch>();
-
-  signOut(authentication).then((res) => {
-    // REDUX STATE
-    dispatch(setUserLogOutState());
-  });
-}
-
-function CreateUserWithPassword(nigga: Function,email: string, password: string) {
-  createUserWithEmailAndPassword(authentication, email, password).then(
-    (userCredential) => {
-      console.log('call2')
-      const user = userCredential.user;
+function CheckIfUserSignedIn(dispatch: Function) {
+  onAuthStateChanged(authentication, (user) => {
+    if (user) {
       const { uid, email } = user!;
-      nigga(
+      dispatch(
         setCurrentUser({
           email,
           uid,
         })
       );
-      console.log('after ni')
+      // loading state.
+    } else {
+      // there is no user.
+    }
+  });
+}
+
+function LogInWithPassword(
+  dispatch: Function,
+  email: string,
+  password: string
+) {
+  signInWithEmailAndPassword(authentication, email, password).then(
+    (userCredentials) => {
+      const user = userCredentials.user;
+      const { uid, email } = user!;
+      dispatch(
+        setCurrentUser({
+          email,
+          uid,
+        })
+      );
+      // loading state.
+    }
+  );
+}
+
+function CreateUserWithPassword(
+  dispatch: Function,
+  email: string,
+  password: string
+) {
+  createUserWithEmailAndPassword(authentication, email, password).then(
+    (userCredential) => {
+      const user = userCredential.user;
+      const { uid, email } = user!;
+      dispatch(
+        setCurrentUser({
+          email,
+          uid,
+        })
+      );
+      // loading state.
     }
   );
 }
 
 const provider = new GoogleAuthProvider();
 
-function createUserWithGoogle() {
+function GoogleUserAuth(dispatch: Function) {
   signInWithPopup(authentication, provider)
     .then((result) => {
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;
 
       const user = result.user;
+      const { uid, email } = user!;
 
-      // REDUX STATE
+      dispatch(
+        setCurrentUser({
+          email,
+          uid,
+        })
+      );
+      // loading state.
     })
     .catch((error) => {
       const errorCode = error.code;
@@ -64,5 +103,16 @@ function createUserWithGoogle() {
     });
 }
 
-const functions = { CreateUserWithPassword, Logout, createUserWithGoogle };
-export default functions
+function Logout(dispatch: Function) {
+  signOut(authentication).then((res) => {
+    dispatch(setUserLogOutState());
+  });
+}
+const functions = {
+  CreateUserWithPassword,
+  Logout,
+  GoogleUserAuth,
+  CheckIfUserSignedIn,
+  LogInWithPassword,
+};
+export default functions;

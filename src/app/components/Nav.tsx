@@ -1,98 +1,106 @@
 "use client";
 import { useEffect, useState } from "react";
-/* import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../redux/store'; */
 import { AppDispatch, useAppSelector } from "../redux/store";
-import {
-  setCurrentUser,
-  setUserLogOutState,
-} from "../redux/features/userSlice";
 import functions from "../firebase/features/user";
-import { setCount } from "../redux/features/countSlice";
 import { useDispatch } from "react-redux";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import authentication from "../firebase/firebase";
+import { Auth, User, onAuthStateChanged } from "firebase/auth";
 
 export default function Nav() {
   const [emailAddress, setEmail] = useState("");
   const [psw, setPsw] = useState("");
-  /*   const dispatch = useDispatch<AppDispatch>(); */
   const { email, uid } = useAppSelector((state) => state.userReducer);
-  const { CreateUserWithPassword, createUserWithGoogle, Logout } = functions;
+  const {
+    CreateUserWithPassword,
+    GoogleUserAuth,
+    Logout,
+    CheckIfUserSignedIn,
+    LogInWithPassword,
+  } = functions;
   const dispatch = useDispatch<AppDispatch>();
 
+  useEffect(() => {
+    CheckIfUserSignedIn(dispatch);
+  }, []); // CheckIfUserSignedIn, dispatch;
 
-  /* https://youtu.be/x-FBwszlA3U -> 54:31 */
+  const [authenticate, setAuthentication] = useState(false);
 
-  /*   const handleSignOut = () => {
-    authentication.signOut().then(() => { // 1. firebase, 2. handling global state in app.
-      dispatch(setUserLogOutState());
-    }).catch((err) => alert(err.message))
-  } */
-  const { count } = useAppSelector((state) => state.countReducer);
-
-  /*  */
-
-  /*  */
-
-  return (
-    <nav className="flex flex-col items-center gap-4">
-      <div className="flex flex-col items-center gap-4">
-        <input
-          onChange={(e) => setEmail(e.target.value)}
-          type="text"
-          className="border-2 border-black"
-          placeholder="Email"
-          required
-        />
-
-        <input
-          onChange={(e) => setPsw(e.target.value)}
-          type="text"
-          className="border-2 border-black"
-          placeholder="Password"
-        />
-      </div>
-      <div className="flex items-center gap-4">
+  if (!authenticate)
+    return (
+      <nav className="flex flex-col items-center gap-4">
+        Do you want to authenticate?{" "}
         <button
           onClick={() => {
-            createUserWithEmailAndPassword(authentication, emailAddress, psw).then(
-              (userCredential) => {
-                const user = userCredential.user;
-                const { uid, email } = user!;
-                dispatch(
-                  setCurrentUser({
-                    email,
-                    uid,
-                  })
-                );
-              }
-            );
+            setAuthentication(true);
           }}
         >
-          Create an account
+          Yes
         </button>
+      </nav>
+    );
 
-        <button
-          onClick={() => {
-            Logout();
-          }}
-        >
-          Logout
-        </button>
-      </div>
+    return (
+      <nav className="flex flex-col items-center gap-4">
+        {uid! && (
+          <button
+            onClick={() => {
+              setAuthentication(false);
+            }}
+          >
+            Close authentication
+          </button>
+        )}
+        <div className="flex flex-col items-center gap-4">
+          <input
+            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            className="border-2 border-black"
+            placeholder="Email"
+          />
 
-      <p>
-        {email} ir {uid}
-      </p>
-      <button
-        onClick={() => {
-          dispatch(setCount(2));
-        }}
-      >
-        +
-      </button>
-      <p>{count}</p>
-    </nav>
-  );
+          <input
+            onChange={(e) => setPsw(e.target.value)}
+            type="text"
+            className="border-2 border-black"
+            placeholder="Password"
+          />
+        </div>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => {
+              CreateUserWithPassword(dispatch, emailAddress, psw);
+            }}
+          >
+            Create an account
+          </button>
+          <button
+            onClick={() => {
+              LogInWithPassword(dispatch, emailAddress, psw);
+            }}
+          >
+            Login
+          </button>
+
+          <button
+            onClick={() => {
+              GoogleUserAuth(dispatch);
+            }}
+          >
+            Login using Google
+          </button>
+
+          <button
+            onClick={() => {
+              Logout(dispatch);
+            }}
+          >
+            Logout
+          </button>
+        </div>
+
+        <div>
+          {email} ir {uid}
+        </div>
+      </nav>
+    );
+
 }
