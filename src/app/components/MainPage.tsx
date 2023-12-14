@@ -1,24 +1,36 @@
 "use client";
 
 import { Session } from "next-auth";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import React, { useEffect } from "react";
+import Image from "next/image";
+import { redirect } from "next/navigation";
 
-export default function MainPage({ session }: { session: Session }) {
-  useEffect(() => {
-    console.log(session);
-  }, []);
+export default function MainPage() {
+  const { data, status } = useSession()!;
 
   return (
     <div>
-      maincomponent
-      <button
-        onClick={() => {
-          signOut({ callbackUrl: "/" });
-        }}
-      >
-        Sign Out
-      </button>
+      {status === "loading" ? (
+        <div>Loading</div>
+      ) : (
+        <div>
+          Welcome, {data?.user?.name}.
+          <Image
+            width={30}
+            height={40}
+            src={data?.user?.image || ""}
+            alt="profile picture"
+          />
+          <button
+            onClick={() => {
+              signOut({ callbackUrl: "/" });
+            }}
+          >
+            Sign Out
+          </button>
+        </div>
+      )}
     </div>
   );
 }

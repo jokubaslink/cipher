@@ -3,15 +3,38 @@
 import React, { useState } from "react";
 import { redirect, useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { authentication, db } from "../utils/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
-export default function AuthComponent() {
+export default function RegisterComponent() {
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
   const router = useRouter();
+
+  function registerUser() {
+    createUserWithEmailAndPassword(authentication, emailAddress, password).then(
+      async (userCredentials) => {
+        const user = userCredentials.user;
+
+        await setDoc(doc(db, "users", user.uid), {
+          displayName: user.displayName,
+          email: user.email,
+          profilePicture: user.photoURL,
+          uid: user.uid,
+        });
+
+        
+
+        router.push("/signin");
+      }
+    );
+  }
 
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center">
-      <h1>Sign in!!</h1>
+      <h1>Register</h1>
       <div className="flex flex-col items-center-justify-center border-b-2 border-black">
         <div className="flex flex-col">
           <label htmlFor="">Email</label>
@@ -27,22 +50,16 @@ export default function AuthComponent() {
         <button
           className="p-3 rounded-md"
           onClick={() => {
-            signIn("signincredentials", {
-              email: emailAddress,
-              password,
-              redirect: true,
-              callbackUrl: "/",
-            });
-            router.push('/')
+            registerUser();
           }}
         >
-          Sign In!
+          Register
         </button>
       </div>
 
       <button
         onClick={() => {
-          signIn("signingoogle", {
+          signIn("google", {
             callbackUrl: "/",
           });
         }}
@@ -54,10 +71,10 @@ export default function AuthComponent() {
       <p
         className="cursor-pointer"
         onClick={() => {
-          router.push("/signup");
+          router.push("/signin");
         }}
       >
-        Do not have an account?
+        Already have an account?
       </p>
     </div>
   );

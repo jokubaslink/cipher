@@ -6,10 +6,17 @@ import MainPage from "./components/MainPage";
 export default async function Home() {
   const session = await getServerSession(authOptions);
 
+  console.log(session)
+
   return (
     <main className="min-h-screen flex items-center justify-center">
-      {session ? <MainPage session={session}/> : <div><SignInButton>Sign In!</SignInButton></div>}
-    </main> 
+      {session ? (
+        <MainPage />
+      ) : (
+        <div>
+          <SignInButton>Sign In!</SignInButton>
+        </div>
+      )}
+    </main>
   );
 }
-

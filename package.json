@@ -13,10 +13,13 @@
     "@reduxjs/toolkit": "^2.0.1",
     "firebase": "^10.7.1",
     "firebase-admin": "^12.0.0",
+    "i": "^0.3.7",
     "next": "14.0.3",
     "next-auth": "^4.24.5",
+    "npm": "^10.2.5",
     "react": "^18",
     "react-dom": "^18",
+    "react-firebase-hooks": "^5.1.1",
     "react-redux": "^9.0.2",
     "redux": "^5.0.0"
   },
