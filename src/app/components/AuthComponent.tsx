@@ -3,11 +3,15 @@
 import React, { useState } from "react";
 import { redirect, useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { authentication } from "../utils/firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export default function AuthComponent() {
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  
+  const provider = new GoogleAuthProvider();
 
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center">
@@ -59,6 +63,11 @@ export default function AuthComponent() {
       >
         Do not have an account?
       </p>
+
+    <button onClick={() => {
+      signInWithPopup(authentication, provider);
+      router.push('/')
+    }}>ultimate</button>
     </div>
   );
 }

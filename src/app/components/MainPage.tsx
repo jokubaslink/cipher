@@ -1,34 +1,39 @@
-"use client";
-
-import { Session } from "next-auth";
+import { getServerSession } from "next-auth";
 import { signOut, useSession } from "next-auth/react";
-import React, { useEffect } from "react";
 import Image from "next/image";
-import { redirect } from "next/navigation";
+import { authOptions } from "../../../auth";
+import { signal } from "@preact/signals";
 
-export default function MainPage() {
-  const { data, status } = useSession()!;
+export default async function MainPage() {
+/*   const { data, status } = useSession()!;
+
+  console.log(data);
+ */
+
+  const userData = signal(await getServerSession(authOptions));
+
+  console.log(userData);
 
   return (
     <div>
-      {status === "loading" ? (
+      {!userData.value ? (
         <div>Loading</div>
       ) : (
         <div>
-          Welcome, {data?.user?.name}.
+          Welcome, {userData.value.user?.name}
           <Image
             width={30}
             height={40}
-            src={data?.user?.image || ""}
-            alt="profile picture"
+            src={userData.value.user?.image || ""}
+            alt=""
           />
-          <button
+   {/*        <button
             onClick={() => {
               signOut({ callbackUrl: "/" });
             }}
           >
             Sign Out
-          </button>
+          </button> */}
         </div>
       )}
     </div>
